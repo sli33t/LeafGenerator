@@ -1,0 +1,35 @@
+server:
+  port: 7000
+
+spring:
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password: bchs@0!9
+    timeout: 10000  #redis请求超时时间，超过此值redis自动断开连接
+    jedis:
+      pool:
+        max-active: 32 #jedis最大连接数，超过此值则提示获取不到连接异常
+        max-wait: 100 #jedis最大等待时间，超过此值会提示连接超时异常
+        max-idle: 32 #jedis最大等待连接数
+        min-idle: 0 #jedis最小等待连接数
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/leaf_gen?useSSL=false&useUnicode=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: root
+    password: root
+
+  main:
+    allow-bean-definition-overriding: true
+
+mybatis-plus:
+  configuration:
+    #还是把结果日志打印出来，方便查询bug
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+    #因为有LbMap，所以null的全部显示
+    call-setters-on-nulls: true
+
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: cn.caishen.common.domain
