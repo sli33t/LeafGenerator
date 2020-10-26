@@ -166,6 +166,7 @@ public class LeafServiceImpl {
      */
     @SneakyThrows
     public long getNextId3(int businessType){
+        boolean twoReady = false;
         lock.lock();
         try {
             LbMap cacheMap_one = (LbMap) caffeineCache.asMap().get(LeafConstant.KEY_ONE);
@@ -182,7 +183,8 @@ public class LeafServiceImpl {
                 long thisId = cacheMap_one.getLong("thisId");
 
                 //判断是否获取第二段
-                if ((thisId - maxId) * 10 / step == 1 && (thisId - maxId) * 10 % step == 0) {
+                //if ((thisId - maxId) * 10 / step == 1 && (thisId - maxId) * 10 % step == 0) {
+                if (!twoReady && ((thisId - maxId) >= (step * 0.1))){
                     //log.info("这里获取第二号段：[thisId]" + thisId + "；[maxId]" + maxId);
                     LbMap cacheMap_two = (LbMap) caffeineCache.asMap().get(LeafConstant.KEY_TWO);
                     if (Objects.isNull(cacheMap_two)) {
@@ -191,6 +193,7 @@ public class LeafServiceImpl {
                         leafDao.updateMaxId(businessType);
                         LbMap nextMap = leafDao.getNextId(businessType);
                         caffeineCache.put(LeafConstant.KEY_TWO, nextMap);
+                        twoReady = true;
                     }
                 }
 
@@ -203,6 +206,7 @@ public class LeafServiceImpl {
 
                     caffeineCache.put(LeafConstant.KEY_ONE, cacheMap_two);
                     caffeineCache.asMap().remove(LeafConstant.KEY_TWO);
+                    twoReady = false;
 
                     return maxId;
                 }
